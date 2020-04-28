@@ -1,1 +1,3 @@
-# ASP.NETCore_REST_API_Auth_Identity_EF
+# Add Swagger
+
+Nuget Package > Swashbuckle.AspNetCore
