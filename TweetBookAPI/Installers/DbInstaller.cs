@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TweetBookAPI.Data;
+using TweetBookAPI.Services;
 
 namespace TweetBookAPI.Installers
 {
@@ -20,6 +21,8 @@ namespace TweetBookAPI.Installers
             });
             services.AddDefaultIdentity<IdentityUser>()
                     .AddEntityFrameworkStores<DataContext>();
+
+            services.AddSingleton<IPostService, PostService>();
         }
     }
 }

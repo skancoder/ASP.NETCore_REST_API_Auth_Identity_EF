@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace TweetBookAPI.Domain
+namespace TweetBookAPI.Constracts.V1.Requests
 {
-    public class Post
+    public class UpdatePostRequest
     {
-        public Guid Id { get; set; }
         public string Name { get; set; }
     }
 }
