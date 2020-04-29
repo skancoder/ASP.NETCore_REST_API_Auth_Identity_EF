@@ -10,6 +10,8 @@ using System.Text;
 using System.Threading.Tasks;
 using TweetBookAPI.Options;
 using Microsoft.OpenApi.Models;
+using TweetBookAPI.Services;
+
 namespace TweetBookAPI.Installers
 {
     public class MvcOrControllerInstaller : IInstaller
@@ -19,6 +21,7 @@ namespace TweetBookAPI.Installers
             var jwtSettings = new JwtSettings();
             configuration.Bind(nameof(jwtSettings), jwtSettings);
             services.AddSingleton(jwtSettings);
+            services.AddScoped<IIdentityService, IdentityService>();
 
             services.AddControllers();
 
