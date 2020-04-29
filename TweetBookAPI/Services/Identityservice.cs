@@ -21,6 +21,7 @@ namespace TweetBookAPI.Services
             _userManager = userManager;
             _jwtSettings = jwtSettings;
         }
+
         public async Task<AuthenticationResult> RegisterAsync(string email, string password)
         {
             var existingUser = await _userManager.FindByEmailAsync(email);
@@ -45,7 +46,33 @@ namespace TweetBookAPI.Services
                     Errors = createdUser.Errors.Select(x => x.Description)
                 };
             }
-             var tokenHandler = new JwtSecurityTokenHandler();
+            return GenerateAuthenticationResultForUser(newUser);
+
+        }
+        public async Task<AuthenticationResult> LoginAsync(string email, string password)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return new AuthenticationResult
+                {
+                    Errors = new[] { "User does not exist" }
+                };
+            }
+            var userHasValidPassword = await _userManager.CheckPasswordAsync(user, password);
+            if (!userHasValidPassword)
+            {
+                return new AuthenticationResult
+                {
+                    Errors = new[] { "User/Password is wrong" }
+                };
+            }
+            return GenerateAuthenticationResultForUser(user);
+        }
+
+        private AuthenticationResult GenerateAuthenticationResultForUser(IdentityUser newUser)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -57,15 +84,16 @@ namespace TweetBookAPI.Services
                     new Claim("id", newUser.Id)//custom claim
                 }),
                 Expires = DateTime.Now.AddHours(2),
-                SigningCredentials=new SigningCredentials(new SymmetricSecurityKey(key),SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return new AuthenticationResult
             {
-                Success=true,
-                Token=tokenHandler.WriteToken(token)
+                Success = true,
+                Token = tokenHandler.WriteToken(token)
             };
-            
         }
+
+        
     }
 }
