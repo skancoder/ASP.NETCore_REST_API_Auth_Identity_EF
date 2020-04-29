@@ -1,1 +1,1 @@
-# ASP.NETCore_REST_API_Auth_Identity_EF
+## Generate Token with Registration Endpoint
