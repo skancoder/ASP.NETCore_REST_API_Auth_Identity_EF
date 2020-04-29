@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TweetBookAPI.Domain;
 
 namespace TweetBookAPI.Data
 {
@@ -13,5 +14,7 @@ namespace TweetBookAPI.Data
         {
 
         }
+
+        public DbSet<Post> Posts { get; set; }
     }
 }
