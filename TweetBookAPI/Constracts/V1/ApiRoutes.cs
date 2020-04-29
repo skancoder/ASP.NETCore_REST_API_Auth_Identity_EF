@@ -21,7 +21,8 @@ namespace TweetBookAPI.Constracts.V1
         public static class Identity//Identity and its controller should be in separate server.(but ignore naming inconsistance of route for simplicity)
         {
             public const string Login = Base + "/identity/login";
-            public const string Resgister = Base + "/identity/resgister";
+            public const string Resgister = Base + "/identity/register";
+            public const string Refresh = Base + "/identity/refresh";
         }
     }
 }
