@@ -48,5 +48,20 @@ namespace TweetBookAPI.Services
             var deleted=await _dataContext.SaveChangesAsync();
             return deleted>0;
         }
+
+        public async Task<bool> UserOwnsPostAsync(Guid postId, string userId)
+        {
+            var post = await _dataContext.Posts.AsNoTracking().SingleOrDefaultAsync(x => x.Id == postId);// AsNoTracking()> it disables EF form tracking this object with id has postId.we do this because when we update/delete above, we dont want it to get conflict.
+            //or//var post = await _dataContext.Posts.AsNoTracking().AnyAsync(x => x.Id == postId && x.UserId==userId);
+            if (post == null)
+            {
+                return false;
+            }
+            if (post.UserId != userId)
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }
