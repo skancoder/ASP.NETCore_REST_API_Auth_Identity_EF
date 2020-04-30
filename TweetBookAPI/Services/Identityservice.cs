@@ -124,7 +124,9 @@ namespace TweetBookAPI.Services
             var tokenHandler =new JwtSecurityTokenHandler();
             try
             {
-                var principal = tokenHandler.ValidateToken(token, _tokenValidationParameters,out var validatedToken);
+                var tokenValidationParameters = _tokenValidationParameters.Clone();
+                tokenValidationParameters.ValidateLifetime = false;
+                var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var validatedToken);
                 if (!IsJwtWithValidSecurityAlgorithm(validatedToken))
                 {
                     return null;
