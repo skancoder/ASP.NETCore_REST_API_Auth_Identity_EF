@@ -17,25 +17,31 @@ namespace TweetBookAPI.Services
         }
         public async Task<List<Post>> GetPostsAsync()
         {
-            return await _dataContext.Posts.ToListAsync();
+            return await _dataContext.Posts.Include(x => x.Tags).ToListAsync();
         }
         public async Task<Post> GetPostByIdAsync(Guid postId)
         {
-            return await _dataContext.Posts.SingleOrDefaultAsync(x => x.Id == postId);
+            return await _dataContext.Posts.Include(x => x.Tags).SingleOrDefaultAsync(x => x.Id == postId);
         }
 
         public async Task<bool> CreatePostAsync(Post post)
         {
+            post.Tags?.ForEach(x => x.TagName = x.TagName.ToLower());
+
+            await AddNewTags(post);
             await _dataContext.Posts.AddAsync(post);
+
             var created = await _dataContext.SaveChangesAsync();
             return created > 0;
         }
 
         public async Task<bool> UpdatePostAsync(Post postToUpdate)
         {
+            postToUpdate.Tags?.ForEach(x => x.TagName = x.TagName.ToLower());
+            await AddNewTags(postToUpdate);
             _dataContext.Posts.Update(postToUpdate);
             var updated = await _dataContext.SaveChangesAsync();
-            return updated>0;
+            return updated > 0;
         }
 
         public async Task<bool> DeletePostAsync(Guid postId)
@@ -62,6 +68,26 @@ namespace TweetBookAPI.Services
                 return false;
             }
             return true;
+        }
+
+        public async Task<List<Tag>> GetAllTagsAsync()
+        {
+            return await _dataContext.Tags.AsNoTracking().ToListAsync();
+        }
+
+        private async Task AddNewTags(Post post)
+        {
+            foreach (var tag in post.Tags)
+            {
+                var existingTag =
+                    await _dataContext.Tags.SingleOrDefaultAsync(x =>
+                        x.Name == tag.TagName);
+                if (existingTag != null)
+                    continue;
+
+                await _dataContext.Tags.AddAsync(new Tag
+                { Name = tag.TagName, CreatedOn = DateTime.UtcNow, CreatorId = post.UserId });
+            }
         }
     }
 }
