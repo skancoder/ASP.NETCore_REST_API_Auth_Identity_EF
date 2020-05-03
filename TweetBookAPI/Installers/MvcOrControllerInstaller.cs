@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using TweetBookAPI.Options;
 using Microsoft.OpenApi.Models;
 using TweetBookAPI.Services;
+using TweetBookAPI.Authorization;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TweetBookAPI.Installers
 {
@@ -47,7 +49,15 @@ namespace TweetBookAPI.Installers
                 x.TokenValidationParameters = tokenValidationParameters;
             });
 
-            services.AddAuthorization();
+            services.AddAuthorization(options=>
+            {
+                options.AddPolicy("MustWorkForABCCompany", policy =>
+                {
+                    policy.AddRequirements(new WorksForCompanyRequirement("abccompany.com"));
+                    //we can add Multiple requirements,claims(AddClaims),Roles(AddRoles) here to restrict on multiple conditions
+                });
+            });
+            services.AddSingleton<IAuthorizationHandler, WorksForCompanyHandler>();
 
             services.AddSwaggerGen(x =>
             {
