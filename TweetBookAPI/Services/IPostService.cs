@@ -14,5 +14,6 @@ namespace TweetBookAPI.Services
         Task<bool> UpdatePostAsync(Post postToUpdate);
         Task<bool> DeletePostAsync(Guid postId);
         Task<bool> UserOwnsPostAsync(Guid postId, string getUserId);
+        Task<List<Tag>> GetAllTagsAsync();
     }
 }

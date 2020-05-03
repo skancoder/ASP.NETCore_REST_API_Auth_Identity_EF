@@ -24,5 +24,9 @@ namespace TweetBookAPI.Constracts.V1
             public const string Resgister = Base + "/identity/register";
             public const string Refresh = Base + "/identity/refresh";
         }
+        public static class Tags
+        {
+            public const string GetAll = Base + "/tags";
+        }
     }
 }
