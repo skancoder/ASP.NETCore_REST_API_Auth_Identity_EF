@@ -15,7 +15,7 @@ using TweetBookAPI.Services;
 namespace TweetBookAPI.Controllers.V1
 {
     //[Route("api/[controller]")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,Roles ="Admin,Poster")]
     [ApiController]
     public class TagsController : ControllerBase
     {
@@ -27,7 +27,6 @@ namespace TweetBookAPI.Controllers.V1
         }
 
         [HttpGet(ApiRoutes.Tags.GetAll)]
-        [Authorize(policy: "TagViewer")]
         public async Task<IActionResult> GetAll()
         {
             return Ok(await _postService.GetAllTagsAsync());
@@ -66,7 +65,16 @@ namespace TweetBookAPI.Controllers.V1
             var locationUri = baseUrl + "/" + ApiRoutes.Tags.Get.Replace("{tagName}", newTag.Name);
             return Created(locationUri, newTag);
         }
+
+
         [HttpDelete(ApiRoutes.Tags.Delete)]
+        [Authorize(Roles = "Admin")]//only Admin
+
+        //[Authorize(Roles = "Admin,Poster")]//Admin or Poster
+
+        //[Authorize(Roles = "Admin")]//Admin and
+        //[Authorize(Roles = "Poster")]//Poster
+
         public async Task<IActionResult> Delete([FromRoute] string tagName)
         {
             var deleted = await _postService.DeleteTagAsync(tagName);

@@ -20,6 +20,7 @@ namespace TweetBookAPI.Installers
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
             });
             services.AddDefaultIdentity<IdentityUser>()
+                    .AddRoles<IdentityRole>()
                     .AddEntityFrameworkStores<DataContext>();
 
             //services.AddSingleton<IPostService, PostService>();

@@ -20,17 +20,22 @@ namespace TweetBookAPI.Services
         private readonly JwtSettings _jwtSettings;
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly DataContext _context;
-        public IdentityService(UserManager<IdentityUser> userManager, JwtSettings jwtSettings, TokenValidationParameters tokenValidationParameters,DataContext dataContext)
+        private readonly RoleManager<IdentityRole> _roleManager;
+
+        public IdentityService(UserManager<IdentityUser> userManager, JwtSettings jwtSettings, 
+            TokenValidationParameters tokenValidationParameters,DataContext dataContext,RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _jwtSettings = jwtSettings;
             _tokenValidationParameters = tokenValidationParameters;
             _context = dataContext;
+            _roleManager = roleManager;
         }
 
         public async Task<AuthenticationResult> RegisterAsync(string email, string password)
         {
             var existingUser = await _userManager.FindByEmailAsync(email);
+            
             if (existingUser != null)
             {
                 return new AuthenticationResult
@@ -54,8 +59,11 @@ namespace TweetBookAPI.Services
                     Errors = createdUser.Errors.Select(x => x.Description)
                 };
             }
-
-            await _userManager.AddClaimAsync(newUser, new Claim("tags.view", "true"));//it as no condition so every user created from now will have his claim.(so access to tags).for demo
+            
+            //user below to map userid and roleid in AspNetRoles Table manually//can automate with if condition
+               // var user = await _userManager.FindByEmailAsync(email);
+                //await _userManager.AddToRoleAsync(user, "Poster");
+            
             return await GenerateAuthenticationResultForUserAsync(newUser);
 
         }
@@ -162,6 +170,25 @@ namespace TweetBookAPI.Services
             };
             var userClaims = await _userManager.GetClaimsAsync(user);//get claims of this specific user and add it to claims list
             claims.AddRange(userClaims);
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+            foreach (var userRole in userRoles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, userRole));
+                var role = await _roleManager.FindByNameAsync(userRole);
+                if (role == null) continue;
+                var roleClaims = await _roleManager.GetClaimsAsync(role);
+
+                foreach (var roleClaim in roleClaims)
+                {
+                    if (claims.Contains(roleClaim))
+                        continue;
+
+                    claims.Add(roleClaim);
+                }
+            }
+
+
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
