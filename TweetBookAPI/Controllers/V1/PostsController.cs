@@ -49,22 +49,17 @@ namespace TweetBookAPI.Controllers.V1
         [HttpPost(ApiRoutes.Posts.Create)]
         public async Task<IActionResult> Create([FromBody] CreatePostRequest postRequest)//Always Separate Domain Objects from Contracts
         {
-            var newPostId = Guid.NewGuid();
-            var post = new Post
-            {
-                Id = newPostId,
+            var post = new Post {
                 Name = postRequest.Name,
-                UserId = HttpContext.GetUserId(),
-                Tags = postRequest.Tags.Select(x => new PostTag { PostId = newPostId, TagName = x }).ToList()
+                UserId = HttpContext.GetUserId()
             };
 
             await _postService.CreatePostAsync(post);
-
             var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
             var locationUri = baseUrl + "/" + ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString());
 
             var response = new PostResponse { Id = post.Id };
-            return Created(locationUri, response);
+            return Created(locationUri,response);
         }
         // PUT: api/v1/posts/{postId}
         [HttpPut(ApiRoutes.Posts.Update)]
@@ -105,6 +100,5 @@ namespace TweetBookAPI.Controllers.V1
 
             return NotFound();
         }
-        
     }
 }

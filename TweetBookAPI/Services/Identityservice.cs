@@ -38,15 +38,12 @@ namespace TweetBookAPI.Services
                     Errors = new[] { "User with this Email address already exists" }
                 };
             }
-            var newUserId = Guid.NewGuid();
             var newUser = new IdentityUser
             {
-                Id = newUserId.ToString(),
                 Email = email,
                 UserName = email
                 //don't keep password here since it will not hash
             };
-
             var createdUser = await _userManager.CreateAsync(newUser, password);//hashes password
             if (!createdUser.Succeeded)
             {
@@ -55,8 +52,6 @@ namespace TweetBookAPI.Services
                     Errors = createdUser.Errors.Select(x => x.Description)
                 };
             }
-
-            await _userManager.AddClaimAsync(newUser, new Claim("tags.view", "true"));//it as no condition so every user created from now will have his claim.(so access to tags).for demo
             return await GenerateAuthenticationResultForUserAsync(newUser);
 
         }
@@ -153,21 +148,15 @@ namespace TweetBookAPI.Services
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
-            var claims = new List<Claim>
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims: new[]
                 {
                     new Claim(JwtRegisteredClaimNames.Sub, user.Email),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),//used for token invalidation
                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
                     new Claim("id", user.Id)//custom claim
-                };
-            var userClaims = await _userManager.GetClaimsAsync(user);//get claims of this specific user and add it to claims list
-            claims.AddRange(userClaims);
-
-
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
+                }),
                 //Expires = DateTime.Now.AddHours(2),
                 Expires = DateTime.Now.Add(_jwtSettings.TokenLifetime),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
