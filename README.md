@@ -1,1 +1,7 @@
-# ASP.NETCore_REST_API_Auth_Identity_EF
+# Separate domain objects from response contract
+
+### controller should only return a versioned type of object.
+### services should only operate on domain objects
+### data context should only operate on DTOs
+### flow:::: dto>domain object>response contract
+
