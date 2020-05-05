@@ -1,1 +1,2 @@
-# ASP.NETCore_REST_API_Auth_Identity_EF
+## Extended Swagger documentation
+Nuget>swashbucke.AspNetCore.Filters
