@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -21,9 +22,12 @@ namespace TweetBookAPI.Controllers.V1
     public class PostsController : ControllerBase
     {
         private readonly IPostService _postService;
-        public PostsController(IPostService postService)
+        private readonly IMapper _mapper;
+
+        public PostsController(IPostService postService,IMapper mapper)
         {
             _postService = postService;
+            _mapper = mapper;
             
         }
 
@@ -32,13 +36,7 @@ namespace TweetBookAPI.Controllers.V1
         public async Task<IActionResult> GetAll()
         {
             var posts = await _postService.GetPostsAsync();
-            var postResponses = posts.Select(post => new PostResponse
-            {
-                Id = post.Id,
-                Name = post.Name,
-                UserId=post.UserId,
-                Tags = post.Tags.Select(x => new TagResponse { Name = x.TagName }).ToList()
-            }).ToList();
+            var postResponses = _mapper.Map<List<PostResponse>>(posts);
             return Ok(postResponses);
         }
         // GET: api/v1/posts/{postId}
@@ -49,13 +47,7 @@ namespace TweetBookAPI.Controllers.V1
             if (post == null)
                 return NotFound();
 
-            return Ok(new PostResponse
-            {
-                Id = post.Id,
-                Name = post.Name,
-                UserId = post.UserId,
-                Tags = post.Tags.Select(x => new TagResponse { Name = x.TagName })
-            });
+            return Ok(_mapper.Map<PostResponse>(post));
         }
         
 
@@ -76,12 +68,7 @@ namespace TweetBookAPI.Controllers.V1
             var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
             var locationUri = baseUrl + "/" + ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString());
 
-            var response = new PostResponse {
-                Id = post.Id,
-                Name = post.Name,
-                UserId = post.UserId,
-                Tags = post.Tags.Select(x => new TagResponse { Name = x.TagName })
-            };
+            var response = _mapper.Map<PostResponse>(post);
             return Created(locationUri,response);
         }
         // PUT: api/v1/posts/{postId}
@@ -101,13 +88,7 @@ namespace TweetBookAPI.Controllers.V1
 
             var updated =await _postService.UpdatePostAsync(post);
             if (updated)
-                return Ok(new PostResponse
-                {
-                    Id = post.Id,
-                    Name = post.Name,
-                    UserId = post.UserId,
-                    Tags = post.Tags.Select(x => new TagResponse { Name = x.TagName })
-                });
+                return Ok(_mapper.Map<PostResponse>(post));
 
             return NotFound();
         }

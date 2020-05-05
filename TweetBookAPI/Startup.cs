@@ -16,6 +16,7 @@ using TweetBookAPI.Data;
 using Microsoft.AspNetCore.Identity;
 using TweetBookAPI.Options;
 using TweetBookAPI.Installers;
+using AutoMapper;
 
 namespace TweetBookAPI
 {
@@ -32,6 +33,7 @@ namespace TweetBookAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.InstallServicesInAssembly(Configuration);//or paste the code inside InstallServicesInAssembly in InstallerExtensions Class
+            services.AddAutoMapper(typeof(Startup));//it tells automapper> find the assembly that Startup Type is in,and automatically resolve any mapping profiles and register them in DI automatically.
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
