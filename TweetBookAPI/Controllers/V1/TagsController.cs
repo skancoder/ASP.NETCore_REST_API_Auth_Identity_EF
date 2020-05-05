@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TweetBookAPI.Constracts.V1;
 using TweetBookAPI.Constracts.V1.Requests;
+using TweetBookAPI.Constracts.V1.Responses;
 using TweetBookAPI.Domain;
 using TweetBookAPI.Extensions;
 using TweetBookAPI.Services;
@@ -29,7 +30,9 @@ namespace TweetBookAPI.Controllers.V1
         [HttpGet(ApiRoutes.Tags.GetAll)]
         public async Task<IActionResult> GetAll()
         {
-            return Ok(await _postService.GetAllTagsAsync());
+            var tags = await _postService.GetAllTagsAsync();
+            var tagResponses = tags.Select(tag => new TagResponse { Name = tag.Name }).ToList();
+            return Ok(tagResponses);
         }
 
         [HttpGet(ApiRoutes.Tags.Get)]
@@ -42,7 +45,7 @@ namespace TweetBookAPI.Controllers.V1
                 return NotFound();
             }
 
-            return Ok(tag);
+            return Ok(new TagResponse { Name = tag.Name });
         }
 
         [HttpPost(ApiRoutes.Tags.Create)]
@@ -63,7 +66,7 @@ namespace TweetBookAPI.Controllers.V1
 
             var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
             var locationUri = baseUrl + "/" + ApiRoutes.Tags.Get.Replace("{tagName}", newTag.Name);
-            return Created(locationUri, newTag);
+            return Created(locationUri, new TagResponse { Name=newTag.Name});
         }
 
 

@@ -31,7 +31,15 @@ namespace TweetBookAPI.Controllers.V1
         [HttpGet(ApiRoutes.Posts.GetAll)]
         public async Task<IActionResult> GetAll()
         {
-            return Ok(await _postService.GetPostsAsync());
+            var posts = await _postService.GetPostsAsync();
+            var postResponses = posts.Select(post => new PostResponse
+            {
+                Id = post.Id,
+                Name = post.Name,
+                UserId=post.UserId,
+                Tags = post.Tags.Select(x => new TagResponse { Name = x.TagName }).ToList()
+            }).ToList();
+            return Ok(postResponses);
         }
         // GET: api/v1/posts/{postId}
         [HttpGet(ApiRoutes.Posts.Get)]
@@ -41,7 +49,13 @@ namespace TweetBookAPI.Controllers.V1
             if (post == null)
                 return NotFound();
 
-            return Ok(post);
+            return Ok(new PostResponse
+            {
+                Id = post.Id,
+                Name = post.Name,
+                UserId = post.UserId,
+                Tags = post.Tags.Select(x => new TagResponse { Name = x.TagName })
+            });
         }
         
 
@@ -62,7 +76,12 @@ namespace TweetBookAPI.Controllers.V1
             var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
             var locationUri = baseUrl + "/" + ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString());
 
-            var response = new PostResponse { Id = post.Id };
+            var response = new PostResponse {
+                Id = post.Id,
+                Name = post.Name,
+                UserId = post.UserId,
+                Tags = post.Tags.Select(x => new TagResponse { Name = x.TagName })
+            };
             return Created(locationUri,response);
         }
         // PUT: api/v1/posts/{postId}
@@ -82,7 +101,13 @@ namespace TweetBookAPI.Controllers.V1
 
             var updated =await _postService.UpdatePostAsync(post);
             if (updated)
-                return Ok(post);
+                return Ok(new PostResponse
+                {
+                    Id = post.Id,
+                    Name = post.Name,
+                    UserId = post.UserId,
+                    Tags = post.Tags.Select(x => new TagResponse { Name = x.TagName })
+                });
 
             return NotFound();
         }
