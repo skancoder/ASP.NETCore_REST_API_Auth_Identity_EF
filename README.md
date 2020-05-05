@@ -4,11 +4,13 @@ Nuget> FluentValidation.AspNetCore
 
 
 #### instead of doing Validation like below, Fluent validation is much cleaner
-if(string.IsNullOrEmpty(request.TagName){
+1. if(string.IsNullOrEmpty(request.TagName){
+
 return BadRequest(new  {error="empty name"})
+
 }
 
-------property----------
+or 2. ------property----------
 
 [EmailAddress]
 
