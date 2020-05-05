@@ -19,6 +19,7 @@ namespace TweetBookAPI.Controllers.V1
     //[Route("api/[controller]")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiController]
+    [Produces(contentType:"application/json")]
     public class TagsController : ControllerBase
     {
         private IPostService _postService;
@@ -67,10 +68,12 @@ namespace TweetBookAPI.Controllers.V1
         ///         "tagname":"sample name"
         ///     }
         /// </remarks>
-        /// <response code="200">Creates a tag in the system</response>
+        /// <response code="201">Creates a tag in the system</response>
         /// <response code="400">Unable to create a tag due to validation error</response>
         /// <returns></returns>
         [HttpPost(ApiRoutes.Tags.Create)]
+        [ProducesResponseType(typeof(TagResponse),statusCode:201)]
+        [ProducesResponseType(typeof(ErrorResponse), statusCode: 400)]
         public async Task<IActionResult> Create([FromBody] CreateTagRequest request)
         {
             var newTag = new Tag
@@ -83,7 +86,14 @@ namespace TweetBookAPI.Controllers.V1
             var created = await _postService.CreateTagAsync(newTag);
             if (!created)
             {
-                return BadRequest(new { error = "Unable to create tag" });
+                //return BadRequest(new { error = "Unable to create tag" });
+                return BadRequest(new ErrorResponse
+                {
+                    Errors = new List<ErrorModel>
+                    {
+                        new ErrorModel{Message="Unable to create tag"}
+                    }
+                });
             }
 
             var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";

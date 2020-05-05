@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.Filters;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,6 +18,10 @@ namespace TweetBookAPI.Installers
             services.AddSwaggerGen(x =>
             {
                 x.SwaggerDoc("v1", new OpenApiInfo { Title = "Tweetbook API", Version = "v1" });
+
+                x.ExampleFilters();//for swagger examples//this will add filters
+
+
                 //----------------------
                 //var security = new Dictionary<string, IEnumerable<string>>
                 //{
@@ -49,7 +54,12 @@ namespace TweetBookAPI.Installers
                 x.IncludeXmlComments(xmlPath);
                 //add "<PropertyGroup><GenerateDocumentationFile>" > so it will automatically generate xml file
 
+
+               
+
             });
+            services.AddSwaggerExamplesFromAssemblyOf<Startup>();//for swagger examples//this will register filters in DI
         }
     }
 }
+    
