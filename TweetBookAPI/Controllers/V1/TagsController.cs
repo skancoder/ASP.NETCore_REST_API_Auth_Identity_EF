@@ -30,6 +30,11 @@ namespace TweetBookAPI.Controllers.V1
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Returns all the tags in the system
+        /// </summary>
+        /// <response code="200">Returns all the tags in the system</response>
+        /// <returns></returns>
         [HttpGet(ApiRoutes.Tags.GetAll)]
         public async Task<IActionResult> GetAll()
         {
@@ -50,6 +55,21 @@ namespace TweetBookAPI.Controllers.V1
             return Ok(_mapper.Map<TagResponse>(tag));
         }
 
+
+        /// <summary>
+        /// Creates a tag in the system
+        /// </summary>
+        /// <remarks>
+        ///     Sample **request**:
+        /// 
+        ///     POST /api/v1/tags
+        ///     {
+        ///         "tagname":"sample name"
+        ///     }
+        /// </remarks>
+        /// <response code="200">Creates a tag in the system</response>
+        /// <response code="400">Unable to create a tag due to validation error</response>
+        /// <returns></returns>
         [HttpPost(ApiRoutes.Tags.Create)]
         public async Task<IActionResult> Create([FromBody] CreateTagRequest request)
         {
