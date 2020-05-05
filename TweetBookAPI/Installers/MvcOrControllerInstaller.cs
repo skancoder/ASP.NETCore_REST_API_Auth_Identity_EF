@@ -13,6 +13,9 @@ using Microsoft.OpenApi.Models;
 using TweetBookAPI.Services;
 using TweetBookAPI.Authorization;
 using Microsoft.AspNetCore.Authorization;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Mvc;
+using TweetBookAPI.Filters;
 
 namespace TweetBookAPI.Installers
 {
@@ -25,7 +28,15 @@ namespace TweetBookAPI.Installers
             services.AddSingleton(jwtSettings);
             services.AddScoped<IIdentityService, IdentityService>();
 
-            services.AddControllers();
+            //services.AddControllers();
+            services
+                .AddMvc(options =>
+                {
+                    options.EnableEndpointRouting = false;
+                    options.Filters.Add<ValidationFilter>();
+                })
+                .AddFluentValidation(mvcConfiguration=>mvcConfiguration.RegisterValidatorsFromAssemblyContaining<Startup>())//same like assembly scanning technique used in startup.cs.This will find everything that extend abstract validator class.
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             var tokenValidationParameters= new TokenValidationParameters
             {
